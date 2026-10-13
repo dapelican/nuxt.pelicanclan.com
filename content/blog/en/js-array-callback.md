@@ -23,34 +23,20 @@ const newArray = array.map((val, idx, arr) => val + 1);
 const greaterThan3 = array.some((val, idx, arr) => val > 3);
 ```
 
----
-
 In the previous code, we call different Array methods. These methods take a function as an argument (aso known as a callback function) and this function always has the same parameters.
-
----
 
 Most of the Array methods use the same type of callback function. This callback function is standard because it has same required and optional parameters in the same order, regardless of the Array method used (for most of them).
 
----
-
 Therefore, it is possible to always use the same name for the parameters. This is quite useful if you want to develop some automatism when dealing with Array methods. We can choose either the full names (but it is quite long) or opt for shorter names.
 
----
-
 First, let us have a look at the usual parameters:
-
----
 
 1. The first parameter, `currentValue` is mandatory. It is the current value or element being processed in the array. Here are some alternative shorter names that can be used for this parameter: `element`, `value`, `currVal`, `currEl`, `val`, `ele`, `el`, `va` or `e`.
 2. The second parameter, `index`, is optional. It is the index of the `currentValue`. Here are some alternative shorter names that can be used for this parameter: `idx`, `id` or `i`. It is not possible to use `in` because it is a reserved keyword in JavaScript.
 3. The third parameter, `array`, is optional. It is the array on which the method is called on. Here are some alternative shorter names that can be used for this parameter: `arr`, `ar` or `a`.
 4. The fourth parameter, `thisArg`, is optional. It is the value to use as `this` when executing the callback function. This fourth parameter is much less used than the previous ones.
 
----
-
 Note that only the first parameter is mandatory. The other ones are all optional.
-
----
 
 Whenever you have to write a standard callback function with an Array method, you can use the same 3-letter (as we did in our example), 2-letter or even 1-letter identifiers. The safest option is to go for the 3-letter identifiers: there are short enough to write concise code but also explicit enough to provide meaning and show intent in the code. Here are some possibilities:
 

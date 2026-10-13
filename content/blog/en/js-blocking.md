@@ -23,8 +23,6 @@ A JavaScript program is a sequence of statements that the JavaScript engine read
 
 JavaScript has 6 kinds of statements:
 
----
-
 1. Declarations and assignments of variables;
 2. Definitions of functions;
 3. Increment, decrement and delete operations;
@@ -41,8 +39,6 @@ A blocking function, just like a non-blocking function, takes in one or several 
 Blocking functions are straightforward in that regard. They **return a value** that can be assigned to a variable and reused later on, in a different scope from the blocking function's one.
 
 Non-blocking functions are trickier. They do not and they cannot return a value that can be "**directly**" useable or stored in a variable. The important word here is directly. Also, there are 2 types of non-blocking functions that are quite different, regarding how "directly" the useful value can be used.
-
----
 
 1. **Callback-based non-blocking functions** use a callback function to be able to execute some code after a non-blocking task is completed. These functions **do not and cannot return a value**. There is no way to store a useful result in a variable for later use. If you try to do so, the variable will be assigned the value `undefined`, since the function does not and cannot return an explicit value. Moreover, if you have several tasks to execute after a non-blocking task is completed, you have to nest several callbacks within one another, inside the function. This problem is called callback hell or the Christmas tree problem, and it produces ugly and, most importantly, hard-to-maintain code.
 2. **Promise-based non-blocking functions** use special objects called Promises, that were introduced in the ES6/ES2015 specification. Promises address the disadvantages of callback-based non-blocking functions in a very clean way. First, Promise-based non-blocking functions can and should return a value, in the form of a Promise object. This object is complex: it has a state that changes through time. Regardless, it is an object that can be stored in a variable. It can be reused later on, **almost** like any variable that stores the return value of a blocking function. Almost, because performing a task after a Promise settles (by resolving a value or rejecting a reason for failing) requires using either the `then()` method, either the syntactic sugar keywords `async`/`await` with a function.
