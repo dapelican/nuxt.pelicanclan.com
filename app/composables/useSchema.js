@@ -1,5 +1,3 @@
-const SITE_NAME = 'NotyLoops';
-
 const createBreadcrumbSchema = (items) => {
   return {
     '@type': 'BreadcrumbList',
@@ -62,15 +60,15 @@ export const useSchema = (page_options) => {
           '@type': 'WebSite',
           '@id': `${site_url}/#website`,
           'url': site_url,
-          'name': SITE_NAME,
+          'name': WEBSITE_NAME,
           'inLanguage': in_language,
         },
         {
           '@type': 'WebApplication',
           '@id': `${site_url}/#webapp`,
-          'name': SITE_NAME,
+          'name': WEBSITE_NAME,
           'url': site_url,
-          'applicationCategory': 'EducationalApplication',
+          'applicationCategory': 'ReferenceApplication',
           'operatingSystem': 'Web',
           'inLanguage': in_language,
           'image': `${site_url}/images/notyloops-0512x0512.png`,
