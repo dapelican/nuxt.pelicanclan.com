@@ -26,7 +26,7 @@ const public_item_list = [
 ];
 
 if (locale.value === 'fr') {
-  public_item_list.unshift({
+  public_item_list.push({
     active: route.path === '/blog',
     label: $t('t_blog'),
     to: '/blog',
