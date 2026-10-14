@@ -4,6 +4,7 @@ CREATE TABLE tool_tags (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   tool_id UUID NOT NULL REFERENCES tools(id) ON DELETE CASCADE,
   tag_id UUID NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
+  tool_specific_url TEXT,
   UNIQUE(tool_id, tag_id)
 );
 

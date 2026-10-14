@@ -6,7 +6,7 @@ services:
     restart: always
     environment:
       POSTGRES_USER: test_pelicanclan_user
-      POSTGRES_PASSWORD: dummypassword123
+      POSTGRES_PASSWORD: dummypassword456
       POSTGRES_DB: test_pelicanclan_db
     ports:
       - "3348:5432"

@@ -67,6 +67,15 @@ const getTagLabel = (tag) =>
           >
             {{ getTagLabel(tag) }}
           </ULink>
+          |
+          <ULink
+            v-if="tag.tool_specific_url"
+            :to="`${tag.tool_specific_url}?utm_source=pelicanclan.com&utm_medium=directory`"
+            target="_blank"
+            class="ml-2 text-primary"
+          >
+            {{ $t('t_direct_link') }}
+          </ULink>
         </li>
       </ul>
     </section>

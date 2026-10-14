@@ -45,7 +45,10 @@ export default defineEventHandler(async (event) => {
       `SELECT
         t.*,
         COALESCE(
-          json_agg(to_jsonb(tg) ORDER BY tg.${label_column}) FILTER (WHERE tg.id IS NOT NULL),
+          json_agg(
+            to_jsonb(tg) || jsonb_build_object('tool_specific_url', tt.tool_specific_url)
+            ORDER BY tg.${label_column}
+          ) FILTER (WHERE tg.id IS NOT NULL),
           '[]'
         ) AS tags
       FROM tools t
@@ -65,7 +68,10 @@ export default defineEventHandler(async (event) => {
       `SELECT
         t.*,
         COALESCE(
-          json_agg(to_jsonb(tg) ORDER BY tg.${label_column}) FILTER (WHERE tg.id IS NOT NULL),
+          json_agg(
+            to_jsonb(tg) || jsonb_build_object('tool_specific_url', tt.tool_specific_url)
+            ORDER BY tg.${label_column}
+          ) FILTER (WHERE tg.id IS NOT NULL),
           '[]'
         ) AS tags
       FROM tools t

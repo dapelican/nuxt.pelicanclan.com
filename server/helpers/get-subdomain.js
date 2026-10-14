@@ -12,13 +12,7 @@ const getSubdomain = (event) => {
 
   const hostname = url?.hostname ?? '';
 
-  const subdomain = hostname.split('.').at(0) ?? '';
-
-  if (subdomain === 'localhost') {
-    return 'www';
-  }
-
-  return subdomain;
+  return hostname.split('.').at(0) ?? '';
 };
 
 export {
