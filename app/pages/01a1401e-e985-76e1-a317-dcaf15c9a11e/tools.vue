@@ -11,7 +11,12 @@ const search = ref('');
 const pending = ref(true);
 const tool_list = ref([]);
 const row_selection = ref({});
-const sorting = ref([]);
+const sorting = ref([
+  {
+    desc: true,
+    id: 'created_at',
+  },
+]);
 const is_tool_form_open = ref(false);
 const is_link_modal_open = ref(false);
 const edited_tool = ref(null);
