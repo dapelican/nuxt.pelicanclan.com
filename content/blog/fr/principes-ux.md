@@ -35,6 +35,7 @@ Voici les règles que j'applique pour vérifier qu'une page web est optimale pou
 
 - On **minimise le nombre d'interactions** que l'utilisateur doit faire pour naviguer ou pour effectuer une tâche, tout en gardant une mise en page conforme aux principes précédents.
 - Chaque action a un **effet visible** : 
-    - un changement de page ou un changement apparent sur la page. Si ce changement n'est pas immédiat, prévoir un élement indiquant un chargement.
+    - un changement de page ou un changement apparent sur la page.
     - un message de succès.
     - un message d'échec, étant explicite pour l'utilisateur.
+- Si l'effet de l'action n'est pas immédiat, signler à l'utilisateur qu'il y de l'attente.

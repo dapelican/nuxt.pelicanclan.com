@@ -157,15 +157,19 @@ const isSponsoredTool = (tool) =>
                 >
                   {{ getTagLabel(tag) }}
                 </ULink>
-                |
-                <ULink
+
+                <span
                   v-if="tag.tool_specific_url"
-                  :to="`${tag.tool_specific_url}?utm_source=pelicanclan.com&utm_medium=directory`"
-                  target="_blank"
-                  class="ml-2 text-primary"
+                  class="ml-4 inline-flex items-center gap-1"
                 >
-                  {{ $t('t_direct_link') }}
-                </ULink>
+                  &gt;&gt;
+                  <ULink
+                    v-if="tag.tool_specific_url"
+                    :to="`${tag.tool_specific_url}?utm_source=pelicanclan.com&utm_medium=directory`"
+                    target="_blank"
+                    class="text-primary"
+                  >{{ tag.tool_specific_name || $t('t_direct_link') }}</ULink>
+                </span>
               </li>
             </ul>
           </td>
