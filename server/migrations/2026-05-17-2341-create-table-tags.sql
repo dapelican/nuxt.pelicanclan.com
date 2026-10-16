@@ -8,8 +8,7 @@ CREATE TABLE tags (
   label_fr TEXT,
   slug_fr TEXT,
   html_fr TEXT,
-  type TEXT, -- goal, target
-  sponsored_tool_id UUID REFERENCES tools(id) ON DELETE CASCADE
+  type TEXT -- goal, target
 );
 
 CREATE TRIGGER update_tags_timestamp

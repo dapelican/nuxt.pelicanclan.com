@@ -24,10 +24,6 @@ import {
 } from '../../helpers/handle-backend-error.js';
 
 import {
-  shuffleArray,
-} from '../../helpers/shuffle-array.js';
-
-import {
   validateNonEmptyInputFieldList,
 } from '../../helpers/validators.js';
 
@@ -105,17 +101,13 @@ export default defineEventHandler(async (event) => {
       [slug]
     );
 
-    const sponsored_tools = tool_list.filter((tool) => tool.id === tag.sponsored_tool_id);
-    const other_tools = tool_list
-      .filter((tool) => tool.id !== tag.sponsored_tool_id)
-      .sort((a, b) => a.name.localeCompare(b.name));
+    tool_list.sort((tool_a, tool_b) => tool_a.name.localeCompare(tool_b.name));
 
     setResponseStatus(event, HTTP_CODE_200_OK);
 
     return {
       tag,
-      sponsored_tools: shuffleArray(sponsored_tools),
-      other_tools,
+      tools: tool_list,
     };
   } catch (error) {
     /* c8 ignore next */

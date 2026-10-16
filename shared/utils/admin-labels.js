@@ -18,13 +18,8 @@ const formatTagType = (type) => {
   return '—';
 };
 
-const formatToolStatus = (status) => (
-  status === 'sponsored' ? 'Sponsorisé' : '—'
-);
-
 export {
   formatBooleanLabel,
   formatTagLabel,
   formatTagType,
-  formatToolStatus,
 };

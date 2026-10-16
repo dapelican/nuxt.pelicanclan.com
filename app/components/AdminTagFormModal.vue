@@ -28,12 +28,6 @@ const type_option_list = [
 
 const handling_request = ref(false);
 const form_error = ref('');
-const tool_option_list = ref([
-  {
-    label: 'Aucun',
-    value: 'none',
-  },
-]);
 
 const form_state = reactive({
   html_en: '',
@@ -42,7 +36,6 @@ const form_state = reactive({
   label_fr: '',
   slug_en: '',
   slug_fr: '',
-  sponsored_tool_id: 'none',
   type: 'goal',
 });
 
@@ -53,7 +46,6 @@ const tag_form_schema = z.object({
   label_fr: z.string(),
   slug_en: z.string(),
   slug_fr: z.string(),
-  sponsored_tool_id: z.string().min(1),
   type: z.enum(['goal', 'target']),
 }).superRefine((value, context) => {
   if (!value.label_en.trim() && !value.label_fr.trim()) {
@@ -79,7 +71,6 @@ const fillForm = () => {
     form_state.label_fr = '';
     form_state.slug_en = '';
     form_state.slug_fr = '';
-    form_state.sponsored_tool_id = 'none';
     form_state.type = 'goal';
     return;
   }
@@ -90,36 +81,12 @@ const fillForm = () => {
   form_state.label_fr = props.tag.label_fr ?? '';
   form_state.slug_en = props.tag.slug_en ?? '';
   form_state.slug_fr = props.tag.slug_fr ?? '';
-  form_state.sponsored_tool_id = props.tag.sponsored_tool_id || 'none';
   form_state.type = props.tag.type === 'target' ? 'target' : 'goal';
 };
 
-const loadToolOptions = async () => {
-  const response = await $fetch(`${ADMIN_BASE_PATH}/api/tools`);
-
-  tool_option_list.value = [
-    {
-      label: 'Aucun',
-      value: 'none',
-    },
-    ...(response.tools ?? []).map((tool) => ({
-      label: tool.name,
-      value: tool.id,
-    })),
-  ];
-};
-
-watch(is_open, async (open) => {
-  if (!open) {
-    return;
-  }
-
-  fillForm();
-
-  try {
-    await loadToolOptions();
-  } catch (error) {
-    form_error.value = handleAdminError(error);
+watch(is_open, (open) => {
+  if (open) {
+    fillForm();
   }
 });
 
@@ -134,7 +101,6 @@ const saveTag = async () => {
     label_fr: form_state.label_fr,
     slug_en: form_state.slug_en,
     slug_fr: form_state.slug_fr,
-    sponsored_tool_id: form_state.sponsored_tool_id === 'none' ? null : form_state.sponsored_tool_id,
     type: form_state.type,
   };
 
@@ -255,18 +221,6 @@ const saveTag = async () => {
               class="w-full"
               :disabled="handling_request"
               :items="type_option_list"
-            />
-          </UFormField>
-
-          <UFormField
-            label="Outil sponsorisé"
-            name="sponsored_tool_id"
-          >
-            <USelect
-              v-model="form_state.sponsored_tool_id"
-              class="w-full"
-              :disabled="handling_request"
-              :items="tool_option_list"
             />
           </UFormField>
         </div>

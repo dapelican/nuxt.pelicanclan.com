@@ -28,8 +28,7 @@ if (category_error.value) {
   }
 }
 
-const sponsored_tools = computed(() => category_data.value?.sponsored_tools ?? []);
-const other_tools = computed(() => category_data.value?.other_tools ?? []);
+const tools = computed(() => category_data.value?.tools ?? []);
 
 const label_field = computed(() => (locale.value === 'en' ? 'label_en' : 'label_fr'));
 
@@ -69,8 +68,7 @@ useSeoMeta({
         class="mt-6 grid gap-4"
       >
         <ToolListElement
-          :sponsored_tool_list="sponsored_tools"
-          :other_tool_list="other_tools"
+          :tool_list="tools"
         />
       </div>
     </section>

@@ -6,6 +6,7 @@ CREATE TABLE tool_tags (
   tag_id UUID NOT NULL REFERENCES tags(id) ON DELETE CASCADE,
   tool_specific_url TEXT,
   tool_specific_name TEXT,
+  start_year INTEGER,
   UNIQUE(tool_id, tag_id)
 );
 

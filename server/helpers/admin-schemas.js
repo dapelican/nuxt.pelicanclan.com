@@ -10,9 +10,9 @@ const optional_url_schema = z.union([
 const tool_body_schema = z.object({
   active_en: z.boolean(),
   active_fr: z.boolean(),
+  comment: z.string().trim().max(10000),
   name: z.string().trim().min(1).max(300),
   square_logo_url: optional_url_schema,
-  status: z.enum(['', 'sponsored']),
   url: z.url().max(2000),
 });
 
@@ -23,11 +23,6 @@ const tag_body_schema = z.object({
   label_fr: z.string().trim().max(300),
   slug_en: z.string().trim().max(300),
   slug_fr: z.string().trim().max(300),
-  sponsored_tool_id: z.union([
-    z.uuid(),
-    z.literal(''),
-    z.null(),
-  ]).transform((value) => value || null),
   type: z.enum(['goal', 'target']),
 }).superRefine((value, context) => {
   if (!value.label_en && !value.label_fr) {

@@ -27,23 +27,12 @@ if (default_error.value) {
 
 const is_searching = computed(() => Boolean(search.value.trim()));
 
-const search_sponsored_tool_list = computed(() =>
-  search_tools.value.filter((tool) => tool.status === 'sponsored')
-);
-
-const search_other_tool_list = computed(() =>
-  search_tools.value.filter((tool) => tool.status !== 'sponsored')
-);
-
 const has_tools = computed(() => {
   if (is_searching.value) {
     return search_tools.value.length > 0;
   }
 
-  return Boolean(
-    default_data.value?.sponsored_tool_list?.length
-    || default_data.value?.other_tool_list?.length
-  );
+  return Boolean(default_data.value?.tool_list?.length);
 });
 
 const handling_request = computed(() => (
@@ -141,6 +130,34 @@ const clearSearch = () => {
       </UInput>
     </section>
 
+    <!-- <section class="ml-auto mr-auto max-w-5xl mt-8 flex flex-wrap gap-4 justify-center">
+      <SponsoredElement
+        favicon_url="https://www.google.com/s2/favicons?domain=primevideo.com&sz=32"
+        tool_name="Prime Video"
+      >
+        Fallout, the new Amazon Original series.<br>
+        Stream the full first season now on
+        <ULink
+          href="https://sovrn.co/1egbv3l"
+          rel="noopener noreferrer"
+          class="text-primary"
+        >Prime Video</ULink>.
+      </SponsoredElement>
+
+      <SponsoredElement
+        favicon_url="https://www.google.com/s2/favicons?domain=primevideo.com&sz=32"
+        tool_name="Prime Video"
+      >
+        Fallout, the new Amazon Original series.<br>
+        Stream the full first season now on
+        <ULink
+          href="https://sovrn.co/1egbv3l"
+          rel="noopener noreferrer"
+          class="text-primary"
+        >Prime Video</ULink>.
+      </SponsoredElement>
+    </section> -->
+
     <section class="ml-auto mr-auto max-w-5xl mt-8">
       <LoadingElement
         v-if="handling_request"
@@ -156,8 +173,7 @@ const clearSearch = () => {
         </h2>
 
         <ToolListElement
-          :sponsored_tool_list="is_searching ? search_sponsored_tool_list : default_data.sponsored_tool_list"
-          :other_tool_list="is_searching ? search_other_tool_list : default_data.other_tool_list"
+          :tool_list="is_searching ? search_tools : default_data.tool_list"
         />
       </div>
     </section>

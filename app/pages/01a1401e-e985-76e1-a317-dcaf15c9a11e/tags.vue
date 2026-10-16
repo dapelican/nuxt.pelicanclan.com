@@ -43,10 +43,6 @@ const columns = [
     header: 'Type',
   },
   {
-    accessorKey: 'sponsored_tool_name',
-    header: 'Outil sponsorisé',
-  },
-  {
     accessorKey: 'created_at',
     enableSorting: true,
     header: 'Créé le',
@@ -223,10 +219,6 @@ onMounted(() => {
 
         <template #type-cell="{ row }">
           {{ formatTagType(row.original.type) }}
-        </template>
-
-        <template #sponsored_tool_name-cell="{ row }">
-          {{ row.original.sponsored_tool_name || '—' }}
         </template>
 
         <template #created_at-header="{ column }">

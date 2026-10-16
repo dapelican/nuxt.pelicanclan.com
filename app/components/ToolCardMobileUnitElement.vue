@@ -1,9 +1,5 @@
 <script setup>
 const props = defineProps({
-  sponsored: {
-    type: Boolean,
-    default: false,
-  },
   tool: {
     type: Object,
     required: true,
@@ -50,11 +46,6 @@ const getTagLabel = (tag) =>
             {{ tool.name }}
           </ULink>
         </span>
-
-        <TagElement
-          v-if="sponsored"
-          :label="$t('t_sponsored')"
-        />
       </section>
     </template>
 

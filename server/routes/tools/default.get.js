@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
     const label_column = subdomain === 'www' ? 'label_en' : 'label_fr';
 
     const {
-      rows: random_tool_list,
+      rows: tool_list,
     } = await executeSQLQuery(
       `SELECT
         t.*,
@@ -58,42 +58,16 @@ export default defineEventHandler(async (event) => {
       LEFT JOIN tool_tags tt ON tt.tool_id = t.id
       LEFT JOIN tags tg ON tg.id = tt.tag_id
       WHERE t.${active_column} = true
-      AND t.status IS DISTINCT FROM 'sponsored'
       GROUP BY t.id
       ORDER BY RANDOM()
       LIMIT $1`,
       [DEFAULT_TOOLS_LIMIT]
     );
 
-    const {
-      rows: sponsored_tool_list,
-    } = await executeSQLQuery(
-      `SELECT
-        t.*,
-        COALESCE(
-          json_agg(
-            to_jsonb(tg) || jsonb_build_object(
-              'tool_specific_url', tt.tool_specific_url,
-              'tool_specific_name', tt.tool_specific_name
-            )
-            ORDER BY tg.${label_column}
-          ) FILTER (WHERE tg.id IS NOT NULL),
-          '[]'
-        ) AS tags
-      FROM tools t
-      LEFT JOIN tool_tags tt ON tt.tool_id = t.id
-      LEFT JOIN tags tg ON tg.id = tt.tag_id
-      WHERE t.${active_column} = true
-      AND t.status = 'sponsored'
-      GROUP BY t.id
-      ORDER BY RANDOM()`
-    );
-
     setResponseStatus(event, HTTP_CODE_200_OK);
 
     return {
-      sponsored_tool_list,
-      other_tool_list: random_tool_list,
+      tool_list,
     };
   } catch (error) {
     /* c8 ignore next */

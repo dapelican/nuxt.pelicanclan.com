@@ -1,9 +1,5 @@
 <script setup>
 const props = defineProps({
-  sponsored_tool_ids: {
-    type: Array,
-    default: () => [],
-  },
   tools: {
     type: Array,
     required: true,
@@ -69,9 +65,6 @@ const getSortIcon = (column) => {
     ? 'i-lucide-arrow-up'
     : 'i-lucide-arrow-down';
 };
-
-const isSponsoredTool = (tool) =>
-  props.sponsored_tool_ids.includes(tool.id);
 </script>
 
 <template>
@@ -143,11 +136,6 @@ const isSponsoredTool = (tool) =>
                   {{ tool.name }}
                 </ULink>
               </span>
-
-              <TagElement
-                v-if="isSponsoredTool(tool)"
-                :label="$t('t_sponsored')"
-              />
             </section>
           </td>
           <td class="px-3 py-3">

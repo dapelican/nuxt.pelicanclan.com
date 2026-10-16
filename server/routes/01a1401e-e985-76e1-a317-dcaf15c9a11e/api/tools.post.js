@@ -37,9 +37,9 @@ export default defineEventHandler(async (event) => {
     const {
       active_en,
       active_fr,
+      comment,
       name,
       square_logo_url,
-      status,
       url,
     } = parsed_body.data;
 
@@ -49,18 +49,18 @@ export default defineEventHandler(async (event) => {
       `INSERT INTO tools (
         active_en,
         active_fr,
+        comment,
         name,
         square_logo_url,
-        status,
         url
       ) VALUES ($1, $2, $3, $4, $5, $6)
       RETURNING *`,
       [
         active_en,
         active_fr,
+        comment || null,
         name,
         square_logo_url || null,
-        status,
         url,
       ]
     );

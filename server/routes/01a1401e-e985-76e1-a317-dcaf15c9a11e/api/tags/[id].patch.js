@@ -53,22 +53,8 @@ export default defineEventHandler(async (event) => {
       label_fr,
       slug_en,
       slug_fr,
-      sponsored_tool_id,
       type,
     } = parsed_body.data;
-
-    if (sponsored_tool_id) {
-      const {
-        rows: tool_rows,
-      } = await executeSQLQuery(
-        'SELECT id FROM tools WHERE id = $1',
-        [sponsored_tool_id]
-      );
-
-      if (!tool_rows.length) {
-        return invalidInputResponse(event);
-      }
-    }
 
     const {
       rows,
@@ -81,8 +67,7 @@ export default defineEventHandler(async (event) => {
         label_fr = $5,
         slug_en = $6,
         slug_fr = $7,
-        sponsored_tool_id = $8,
-        type = $9
+        type = $8
       WHERE id = $1
       RETURNING *`,
       [
@@ -93,7 +78,6 @@ export default defineEventHandler(async (event) => {
         label_fr,
         slug_en,
         slug_fr,
-        sponsored_tool_id,
         type,
       ]
     );

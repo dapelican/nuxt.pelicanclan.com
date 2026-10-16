@@ -49,9 +49,9 @@ export default defineEventHandler(async (event) => {
     const {
       active_en,
       active_fr,
+      comment,
       name,
       square_logo_url,
-      status,
       url,
     } = parsed_body.data;
 
@@ -62,9 +62,9 @@ export default defineEventHandler(async (event) => {
       SET
         active_en = $2,
         active_fr = $3,
-        name = $4,
-        square_logo_url = $5,
-        status = $6,
+        comment = $4,
+        name = $5,
+        square_logo_url = $6,
         url = $7
       WHERE id = $1
       RETURNING *`,
@@ -72,9 +72,9 @@ export default defineEventHandler(async (event) => {
         tool_id,
         active_en,
         active_fr,
+        comment || null,
         name,
         square_logo_url || null,
-        status,
         url,
       ]
     );

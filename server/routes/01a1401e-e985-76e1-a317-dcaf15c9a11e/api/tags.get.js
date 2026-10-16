@@ -51,13 +51,10 @@ export default defineEventHandler(async (event) => {
     const {
       rows,
     } = await executeSQLQuery(
-      `SELECT
-        tg.*,
-        t.name AS sponsored_tool_name
-      FROM tags tg
-      LEFT JOIN tools t ON t.id = tg.sponsored_tool_id
+      `SELECT *
+      FROM tags
       ${where_clause}
-      ORDER BY COALESCE(NULLIF(tg.label_fr, ''), NULLIF(tg.label_en, ''), tg.slug_fr, tg.slug_en)`,
+      ORDER BY COALESCE(NULLIF(label_fr, ''), NULLIF(label_en, ''), slug_fr, slug_en)`,
       parameter_list
     );
 

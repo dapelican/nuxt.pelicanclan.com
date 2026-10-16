@@ -4,10 +4,10 @@ CREATE TABLE tools (
   updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
   name TEXT NOT NULL,
   url TEXT NOT NULL,
-  status TEXT,
+  square_logo_url TEXT,
   active_en BOOLEAN DEFAULT TRUE,
   active_fr BOOLEAN DEFAULT TRUE,
-  square_logo_url TEXT
+  comment TEXT
 );
 
 CREATE TRIGGER update_tools_timestamp

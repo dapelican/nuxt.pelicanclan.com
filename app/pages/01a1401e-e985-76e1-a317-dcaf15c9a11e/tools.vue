@@ -36,10 +36,6 @@ const columns = [
     header: 'URL',
   },
   {
-    accessorKey: 'status',
-    header: 'Statut',
-  },
-  {
     accessorKey: 'active_en',
     header: 'Actif EN',
   },
@@ -235,10 +231,6 @@ onMounted(() => {
           >
             {{ row.original.url }}
           </a>
-        </template>
-
-        <template #status-cell="{ row }">
-          {{ formatToolStatus(row.original.status) }}
         </template>
 
         <template #active_en-cell="{ row }">

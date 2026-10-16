@@ -15,28 +15,14 @@ const is_open = defineModel('open', {
   default: false,
 });
 
-const status_option_list = [
-  {
-    label: 'Aucun',
-    value: 'none',
-  },
-  {
-    label: 'Sponsorisé',
-    value: 'sponsored',
-  },
-];
-
-const optional_url_schema = z.union([
-  z.literal(''),
-  z.url('L\'URL du logo est invalide'),
-]);
+const SQUARE_LOGO_BASE_URL = 'https://a.pelicanclan.com/';
 
 const tool_form_schema = z.object({
   active_en: z.boolean(),
   active_fr: z.boolean(),
+  comment: z.string().trim().max(10000, 'Le commentaire est trop long'),
   name: z.string().trim().min(1, 'Le nom est requis'),
-  square_logo_url: optional_url_schema,
-  status: z.enum(['none', 'sponsored']),
+  square_logo_url: z.string().trim().regex(/^(?:[^\s/]\S*)?$/, 'Le nom du fichier est invalide'),
   url: z.url('L\'URL est invalide'),
 });
 
@@ -46,9 +32,9 @@ const form_error = ref('');
 const form_state = reactive({
   active_en: true,
   active_fr: true,
+  comment: '',
   name: '',
   square_logo_url: '',
-  status: 'none',
   url: '',
 });
 
@@ -62,18 +48,21 @@ const fillForm = () => {
   if (!props.tool) {
     form_state.active_en = true;
     form_state.active_fr = true;
+    form_state.comment = '';
     form_state.name = '';
     form_state.square_logo_url = '';
-    form_state.status = 'none';
     form_state.url = '';
     return;
   }
 
   form_state.active_en = props.tool.active_en !== false;
   form_state.active_fr = props.tool.active_fr !== false;
+  form_state.comment = props.tool.comment ?? '';
   form_state.name = props.tool.name ?? '';
-  form_state.square_logo_url = props.tool.square_logo_url ?? '';
-  form_state.status = props.tool.status === 'sponsored' ? 'sponsored' : 'none';
+  const square_logo_url = props.tool.square_logo_url ?? '';
+  form_state.square_logo_url = square_logo_url.startsWith(SQUARE_LOGO_BASE_URL)
+    ? square_logo_url.slice(SQUARE_LOGO_BASE_URL.length)
+    : square_logo_url;
   form_state.url = props.tool.url ?? '';
 };
 
@@ -87,12 +76,14 @@ const saveTool = async () => {
   handling_request.value = true;
   form_error.value = '';
 
+  const square_logo_file_name = form_state.square_logo_url.trim();
+
   const body = {
     active_en: form_state.active_en,
     active_fr: form_state.active_fr,
+    comment: form_state.comment.trim(),
     name: form_state.name,
-    square_logo_url: form_state.square_logo_url.trim(),
-    status: form_state.status === 'sponsored' ? 'sponsored' : '',
+    square_logo_url: square_logo_file_name ? `${SQUARE_LOGO_BASE_URL}${square_logo_file_name}` : '',
     url: form_state.url.trim(),
   };
 
@@ -156,26 +147,34 @@ const saveTool = async () => {
         </UFormField>
 
         <UFormField
-          label="Statut"
-          name="status"
-        >
-          <USelect
-            v-model="form_state.status"
-            class="w-full"
-            :disabled="handling_request"
-            :items="status_option_list"
-          />
-        </UFormField>
-
-        <UFormField
           label="URL du logo carré"
           name="square_logo_url"
         >
-          <UInput
-            v-model="form_state.square_logo_url"
+          <UFieldGroup class="w-full">
+            <UBadge
+              color="neutral"
+              :label="SQUARE_LOGO_BASE_URL"
+              size="lg"
+              variant="outline"
+            />
+            <UInput
+              v-model="form_state.square_logo_url"
+              class="w-full"
+              :disabled="handling_request"
+              placeholder="logo.png"
+            />
+          </UFieldGroup>
+        </UFormField>
+
+        <UFormField
+          label="Commentaire"
+          name="comment"
+        >
+          <UTextarea
+            v-model="form_state.comment"
             class="w-full"
             :disabled="handling_request"
-            type="url"
+            :rows="4"
           />
         </UFormField>
 
