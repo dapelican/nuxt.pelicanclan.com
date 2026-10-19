@@ -11,7 +11,7 @@
     "packages": "npx npm-check-updates",
     "sort-package-json": "npx sort-package-json",
     "pretest": "node server/tests/seeds/initializeData.js",
-    "seed": "node server/tests/seeds/generate-seeds.js",
+    "update-seeds": "node server/tests/seeds/generate-seeds.js",
     "test": "vitest run"
   },
   "dependencies": {

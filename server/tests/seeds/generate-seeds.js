@@ -10,7 +10,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
 const CSV_PATH = path.join(__dirname, 'backup.csv');
 
-const SQL_PATH = path.join(__dirname, 'seeds.sql');
+const SQL_PATH = path.join(__dirname, '1-pelicanclan-seeds.sql');
 
 const CSV_COLUMNS = [
   'tools|name',
@@ -189,9 +189,15 @@ const readTagTypes = (sql) => {
     }
 
     const slug_en = values[1];
+    const slug_fr = values[3];
     const type = values[4];
-    if (slug_en && type) {
-      types_by_slug.set(slug_en, type);
+    if (type) {
+      if (slug_en) {
+        types_by_slug.set(slug_en, type);
+      }
+      if (slug_fr) {
+        types_by_slug.set(slug_fr, type);
+      }
     }
   }
 
@@ -199,6 +205,35 @@ const readTagTypes = (sql) => {
 };
 
 const emptyToNull = (value) => (value === '' ? null : value);
+
+const indexTag = (tags_by_slug, tag) => {
+  const indexSlug = (slug) => {
+    if (!slug) {
+      return;
+    }
+    const indexed = tags_by_slug.get(slug);
+    if (indexed && indexed !== tag) {
+      throw new Error(`Conflicting tag values for "${slug}"`);
+    }
+    tags_by_slug.set(slug, tag);
+  };
+
+  indexSlug(tag.slug_en);
+  indexSlug(tag.slug_fr);
+};
+
+const fillTagField = (tag, field, incoming, identity) => {
+  if (incoming == null) {
+    return;
+  }
+  if (tag[field] == null) {
+    tag[field] = incoming;
+    return;
+  }
+  if (tag[field] !== incoming) {
+    throw new Error(`Conflicting tag values for "${identity}"`);
+  }
+};
 
 const collectSeedData = (records, types_by_slug) => {
   const tools = [];
@@ -229,42 +264,52 @@ const collectSeedData = (records, types_by_slug) => {
       throw new Error(`Conflicting tool values for "${tool_name}"`);
     }
 
-    const slug_en = record['tags|slug_en'];
-    const label_en = record['tags|label_en'];
-    const label_fr = record['tags|label_fr'];
-    const slug_fr = record['tags|slug_fr'];
+    const label_en = emptyToNull(record['tags|label_en']);
+    const slug_en = emptyToNull(record['tags|slug_en']);
+    const label_fr = emptyToNull(record['tags|label_fr']);
+    const slug_fr = emptyToNull(record['tags|slug_fr']);
 
-    if (!slug_en) {
-      throw new Error(`Missing tag slug_en for tool "${tool_name}"`);
+    if (!slug_en && !slug_fr) {
+      continue;
     }
 
-    const existing_tag = tags_by_slug.get(slug_en);
-    if (!existing_tag) {
-      let type = types_by_slug.get(slug_en);
+    const identity = slug_en || slug_fr;
+    const tag_by_en = slug_en ? tags_by_slug.get(slug_en) : undefined;
+    const tag_by_fr = slug_fr ? tags_by_slug.get(slug_fr) : undefined;
+    if (tag_by_en && tag_by_fr && tag_by_en !== tag_by_fr) {
+      throw new Error(`Conflicting tag values for "${identity}"`);
+    }
+
+    let tag = tag_by_en || tag_by_fr;
+    if (!tag) {
+      let type = slug_en ? types_by_slug.get(slug_en) : undefined;
+      if (!type && slug_fr) {
+        type = types_by_slug.get(slug_fr);
+      }
       if (!type) {
         type = 'goal';
-        console.warn(`No existing type for tag "${slug_en}", defaulting to 'goal'`);
+        console.warn(`No existing type for tag "${identity}", defaulting to 'goal'`);
       }
-      const tag = {
+      tag = {
         label_en,
         slug_en,
         label_fr,
         slug_fr,
         type,
       };
-      tags_by_slug.set(slug_en, tag);
       tags.push(tag);
-    } else if (
-      existing_tag.label_en !== label_en
-      || existing_tag.label_fr !== label_fr
-      || existing_tag.slug_fr !== slug_fr
-    ) {
-      throw new Error(`Conflicting tag values for "${slug_en}"`);
+    } else {
+      fillTagField(tag, 'label_en', label_en, identity);
+      fillTagField(tag, 'slug_en', slug_en, identity);
+      fillTagField(tag, 'label_fr', label_fr, identity);
+      fillTagField(tag, 'slug_fr', slug_fr, identity);
     }
+    indexTag(tags_by_slug, tag);
 
     links.push({
       tool_name,
-      tag_slug_en: slug_en,
+      tag_slug_en: tag.slug_en,
+      tag_slug_fr: tag.slug_fr,
       tool_specific_url: emptyToNull(record['tool_tags|tool_specific_url']),
       tool_specific_name: emptyToNull(record['tool_tags|tool_specific_name']),
     });
@@ -295,6 +340,19 @@ const buildSql = ({ tools, tags, links }) => {
     toSqlLiteral(tool.url),
     toSqlLiteral(tool.square_logo_url),
   ]);
+
+  let sql = `-- =============================================
+-- Tools
+-- =============================================
+INSERT INTO tools (name, url, square_logo_url)
+VALUES
+${formatValueRows(tool_rows)}
+`;
+
+  if (tags.length === 0) {
+    return sql;
+  }
+
   const tag_rows = tags.map((tag) => [
     toSqlLiteral(tag.label_en),
     toSqlLiteral(tag.slug_en),
@@ -305,35 +363,41 @@ const buildSql = ({ tools, tags, links }) => {
   const link_rows = links.map((link) => [
     toSqlLiteral(link.tool_name),
     toSqlLiteral(link.tag_slug_en),
+    toSqlLiteral(link.tag_slug_fr),
     toSqlLiteral(link.tool_specific_url),
     toSqlLiteral(link.tool_specific_name),
   ]);
 
-  return `-- =============================================
--- Tools
--- =============================================
-INSERT INTO tools (name, url, square_logo_url)
-VALUES
-${formatValueRows(tool_rows)}
-
+  sql += `
 -- =============================================
 -- Tags
 -- =============================================
 INSERT INTO tags (label_en, slug_en, label_fr, slug_fr, type)
 VALUES
 ${formatValueRows(tag_rows)}
+`;
 
+  if (links.length === 0) {
+    return sql;
+  }
+
+  sql += `
 -- =============================================
--- Tool–tag links, resolved by tool name and tag slug_en
+-- Tool–tag links, resolved by tool name and tag slug_en or slug_fr
 -- =============================================
 INSERT INTO tool_tags (tool_id, tag_id, tool_specific_url, tool_specific_name)
 SELECT tools.id, tags.id, v.tool_specific_url, v.tool_specific_name
 FROM (VALUES
 ${formatValueRows(link_rows, '')}
-) AS v(tool_name, tag_slug_en, tool_specific_url, tool_specific_name)
+) AS v(tool_name, tag_slug_en, tag_slug_fr, tool_specific_url, tool_specific_name)
 JOIN tools ON tools.name = v.tool_name
-JOIN tags ON tags.slug_en = v.tag_slug_en;
+JOIN tags ON (
+  (v.tag_slug_en IS NOT NULL AND tags.slug_en = v.tag_slug_en)
+    OR (v.tag_slug_en IS NULL AND tags.slug_fr = v.tag_slug_fr)
+);
 `;
+
+  return sql;
 };
 
 const generateSeeds = async () => {
@@ -345,12 +409,12 @@ const generateSeeds = async () => {
     if (err.code !== 'ENOENT') {
       throw err;
     }
-    console.warn('No existing seeds.sql; new tags will default to goal');
+    console.warn('No existing 1-pelicanclan-seeds.sql; new tags will default to goal');
   }
 
   const seed_data = collectSeedData(recordsFromCsv(csv_text), readTagTypes(existing_sql));
   await fs.writeFile(SQL_PATH, buildSql(seed_data));
-  console.log(`Wrote ${seed_data.tools.length} tools, ${seed_data.tags.length} tags, and ${seed_data.links.length} links to seeds.sql`);
+  console.log(`Wrote ${seed_data.tools.length} tools, ${seed_data.tags.length} tags, and ${seed_data.links.length} links to 1-pelicanclan-seeds.sql`);
 };
 
 try {
