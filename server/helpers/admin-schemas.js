@@ -1,5 +1,3 @@
-'use strict';
-
 import { z } from 'zod';
 
 const optional_url_schema = z.union([

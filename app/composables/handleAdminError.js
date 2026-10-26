@@ -1,5 +1,3 @@
-'use strict';
-
 export const handleAdminError = (error) => {
   const error_message = error?.data?.error_message;
 

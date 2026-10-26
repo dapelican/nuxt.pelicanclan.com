@@ -1,13 +1,7 @@
-'use strict';
-
 import {
   WEBSITE_DOMAIN_NAME,
   WEBSITE_NAME,
 } from '#shared/utils/constants.js';
-
-import {
-  FIRST_LANGUAGE,
-} from '../../helpers/constants.js';
 
 import ejs from 'ejs';
 
@@ -18,28 +12,20 @@ import { readFile } from 'fs/promises';
 const TEMPLATES_DIR = join(process.cwd(), 'server/helpers/email-templates');
 
 const getLanguageFolder = (subdomain) => {
-  if (subdomain === 'www') {
-    return FIRST_LANGUAGE;
-  }
-
   if (subdomain === 'fr') {
     return 'fr';
   }
 
-  if (subdomain === 'en') {
-    return 'en';
-  }
-
-  return FIRST_LANGUAGE;
+  return 'www';
 };
 
 const renderTemplate = async (template_name, subdomain, template_params) => {
   const language_folder = getLanguageFolder(subdomain);
 
   const data = {
-    ...template_params,
     WEBSITE_DOMAIN_NAME,
     WEBSITE_NAME,
+    ...template_params,
   };
 
   const html_body_raw = await readFile(

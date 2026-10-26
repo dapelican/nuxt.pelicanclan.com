@@ -1,5 +1,3 @@
-'use strict';
-
 const heading_id_pattern = /\s*\{#([\w-]+)\}\s*$/u;
 
 const applyHeadingId = (node) => {

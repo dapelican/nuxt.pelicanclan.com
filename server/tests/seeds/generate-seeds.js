@@ -1,5 +1,3 @@
-'use strict';
-
 import { fileURLToPath } from 'url';
 
 import fs from 'fs/promises';
@@ -20,6 +18,7 @@ const CSV_COLUMNS = [
   'tags|slug_en',
   'tags|label_fr',
   'tags|slug_fr',
+  'tags|type',
   'tool_tags|tool_specific_url',
   'tool_tags|tool_specific_name',
 ];
@@ -109,101 +108,6 @@ const recordsFromCsv = (text) => {
   });
 };
 
-const skipWhitespace = (sql, index) => {
-  let next_index = index;
-  while (next_index < sql.length && /\s/.test(sql[next_index])) {
-    next_index += 1;
-  }
-  return next_index;
-};
-
-const readSqlLiteral = (sql, index) => {
-  const start = skipWhitespace(sql, index);
-  if (sql.startsWith('NULL', start)) {
-    return { value: null, index: start + 4 };
-  }
-  if (sql[start] !== '\'') {
-    throw new Error('Expected a SQL string while reading existing tag types');
-  }
-
-  let value = '';
-  let next_index = start + 1;
-  while (next_index < sql.length) {
-    const char = sql[next_index];
-    if (char === '\'') {
-      if (sql[next_index + 1] === '\'') {
-        value += '\'';
-        next_index += 2;
-        continue;
-      }
-      return { value, index: next_index + 1 };
-    }
-    value += char;
-    next_index += 1;
-  }
-
-  throw new Error('Unterminated SQL string while reading existing tag types');
-};
-
-const readTagTypes = (sql) => {
-  const types_by_slug = new Map();
-  const insert_index = sql.indexOf('INSERT INTO tags');
-  if (insert_index === -1) {
-    return types_by_slug;
-  }
-
-  const values_index = sql.indexOf('VALUES', insert_index);
-  if (values_index === -1) {
-    return types_by_slug;
-  }
-
-  let index = values_index + 'VALUES'.length;
-  while (index < sql.length) {
-    index = skipWhitespace(sql, index);
-    if (index >= sql.length || sql[index] === ';') {
-      break;
-    }
-    if (sql[index] === ',') {
-      index += 1;
-      continue;
-    }
-    if (sql[index] !== '(') {
-      throw new Error('Expected a tag tuple while reading existing tag types');
-    }
-
-    index += 1;
-    const values = [];
-    while (index < sql.length) {
-      const literal = readSqlLiteral(sql, index);
-      values.push(literal.value);
-      index = skipWhitespace(sql, literal.index);
-      if (sql[index] === ',') {
-        index += 1;
-        continue;
-      }
-      if (sql[index] === ')') {
-        index += 1;
-        break;
-      }
-      throw new Error('Expected the end of a tag tuple while reading existing tag types');
-    }
-
-    const slug_en = values[1];
-    const slug_fr = values[3];
-    const type = values[4];
-    if (type) {
-      if (slug_en) {
-        types_by_slug.set(slug_en, type);
-      }
-      if (slug_fr) {
-        types_by_slug.set(slug_fr, type);
-      }
-    }
-  }
-
-  return types_by_slug;
-};
-
 const emptyToNull = (value) => (value === '' ? null : value);
 
 const indexTag = (tags_by_slug, tag) => {
@@ -235,7 +139,7 @@ const fillTagField = (tag, field, incoming, identity) => {
   }
 };
 
-const collectSeedData = (records, types_by_slug) => {
+const collectSeedData = (records) => {
   const tools = [];
   const tools_by_name = new Map();
   const tags = [];
@@ -246,6 +150,8 @@ const collectSeedData = (records, types_by_slug) => {
     const tool_name = record['tools|name'];
     const tool_url = record['tools|url'];
     const square_logo_url = emptyToNull(record['tools|square_logo_url']);
+    const label_en = emptyToNull(record['tags|label_en']);
+    const active_en = label_en === null ? null : true;
 
     if (!tool_name || !tool_url) {
       throw new Error('Each CSV row needs a tool name and url');
@@ -257,17 +163,21 @@ const collectSeedData = (records, types_by_slug) => {
         name: tool_name,
         url: tool_url,
         square_logo_url,
+        active_en,
+        active_fr: true,
       };
       tools_by_name.set(tool_name, tool);
       tools.push(tool);
     } else if (existing_tool.url !== tool_url || existing_tool.square_logo_url !== square_logo_url) {
       throw new Error(`Conflicting tool values for "${tool_name}"`);
+    } else if (active_en === null) {
+      existing_tool.active_en = null;
     }
 
-    const label_en = emptyToNull(record['tags|label_en']);
     const slug_en = emptyToNull(record['tags|slug_en']);
     const label_fr = emptyToNull(record['tags|label_fr']);
     const slug_fr = emptyToNull(record['tags|slug_fr']);
+    const type = emptyToNull(record['tags|type']) ?? 'goal';
 
     if (!slug_en && !slug_fr) {
       continue;
@@ -282,14 +192,6 @@ const collectSeedData = (records, types_by_slug) => {
 
     let tag = tag_by_en || tag_by_fr;
     if (!tag) {
-      let type = slug_en ? types_by_slug.get(slug_en) : undefined;
-      if (!type && slug_fr) {
-        type = types_by_slug.get(slug_fr);
-      }
-      if (!type) {
-        type = 'goal';
-        console.warn(`No existing type for tag "${identity}", defaulting to 'goal'`);
-      }
       tag = {
         label_en,
         slug_en,
@@ -303,6 +205,7 @@ const collectSeedData = (records, types_by_slug) => {
       fillTagField(tag, 'slug_en', slug_en, identity);
       fillTagField(tag, 'label_fr', label_fr, identity);
       fillTagField(tag, 'slug_fr', slug_fr, identity);
+      fillTagField(tag, 'type', type, identity);
     }
     indexTag(tags_by_slug, tag);
 
@@ -339,12 +242,14 @@ const buildSql = ({ tools, tags, links }) => {
     toSqlLiteral(tool.name),
     toSqlLiteral(tool.url),
     toSqlLiteral(tool.square_logo_url),
+    tool.active_en === null ? 'NULL' : 'true',
+    tool.active_fr ? 'true' : 'false',
   ]);
 
   let sql = `-- =============================================
 -- Tools
 -- =============================================
-INSERT INTO tools (name, url, square_logo_url)
+INSERT INTO tools (name, url, square_logo_url, active_en, active_fr)
 VALUES
 ${formatValueRows(tool_rows)}
 `;
@@ -402,17 +307,7 @@ JOIN tags ON (
 
 const generateSeeds = async () => {
   const csv_text = await fs.readFile(CSV_PATH, 'utf8');
-  let existing_sql = '';
-  try {
-    existing_sql = await fs.readFile(SQL_PATH, 'utf8');
-  } catch (err) {
-    if (err.code !== 'ENOENT') {
-      throw err;
-    }
-    console.warn('No existing 1-pelicanclan-seeds.sql; new tags will default to goal');
-  }
-
-  const seed_data = collectSeedData(recordsFromCsv(csv_text), readTagTypes(existing_sql));
+  const seed_data = collectSeedData(recordsFromCsv(csv_text));
   await fs.writeFile(SQL_PATH, buildSql(seed_data));
   console.log(`Wrote ${seed_data.tools.length} tools, ${seed_data.tags.length} tags, and ${seed_data.links.length} links to 1-pelicanclan-seeds.sql`);
 };

@@ -242,13 +242,8 @@ onMounted(() => {
         </template>
 
         <template #square_logo_url-cell="{ row }">
-          <img
-            v-if="row.original.square_logo_url"
-            alt=""
-            class="h-8 w-8 object-contain"
-            :src="row.original.square_logo_url"
-          >
-          <span v-else>—</span>
+          <ToolSquareLogoElement :src="row.original.square_logo_url" />
+          <span v-if="!row.original.square_logo_url">—</span>
         </template>
 
         <template #created_at-header="{ column }">

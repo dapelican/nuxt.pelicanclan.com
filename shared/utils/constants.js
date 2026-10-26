@@ -1,11 +1,23 @@
-'use strict';
-
 const ADMIN_BASE_PATH = '/01a1401e-e985-76e1-a317-dcaf15c9a11e';
+
+const USER_STATUS_ADMIN = 'admin';
+const USER_STATUS_FREE = 'free';
+const USER_STATUS_PENDING = 'pending';
+const USER_STATUS_PREMIUM = 'premium';
+const USER_STATUS_UNVERIFIED = 'unverified';
+const USER_STATUS_VERIFIED = 'verified';
+
 const WEBSITE_DOMAIN_NAME = 'pelicanclan.com';
 const WEBSITE_NAME = 'PelicanClan';
 
 export {
   ADMIN_BASE_PATH,
+  USER_STATUS_ADMIN,
+  USER_STATUS_FREE,
+  USER_STATUS_PENDING,
+  USER_STATUS_PREMIUM,
+  USER_STATUS_UNVERIFIED,
+  USER_STATUS_VERIFIED,
   WEBSITE_DOMAIN_NAME,
   WEBSITE_NAME,
 };

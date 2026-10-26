@@ -11,6 +11,8 @@ useSeoMeta({
 const handling_request = ref(false);
 const form_error = ref('');
 const show_success_message = ref(false);
+const turnstile_element = ref(null);
+const turnstile_token = ref('');
 
 const contact_form_state = reactive({
   email: '',
@@ -21,10 +23,10 @@ const contact_form_state = reactive({
 const contact_form_schema = z.object({
   email: z.email(t('t_schema_error_invalid_email_address')),
   first_name: z
-    .string({ invalid_type_error: t('t_schema_error_empty_string') })
+    .string(t('t_schema_error_empty_string'))
     .min(1, t('t_schema_error_empty_string')),
   message: z
-    .string({ invalid_type_error: t('t_schema_error_empty_string') })
+    .string(t('t_schema_error_empty_string'))
     .min(1, t('t_schema_error_empty_string')),
 });
 
@@ -38,6 +40,7 @@ const sendContactMessage = async () => {
         email: contact_form_state.email,
         first_name: contact_form_state.first_name,
         message: contact_form_state.message,
+        turnstile_token: turnstile_token.value,
       },
     });
 
@@ -49,18 +52,24 @@ const sendContactMessage = async () => {
       case 'error_invalid_email':
         form_error.value = t('t_error_invalid_email');
         break;
+      case 'error_corrupt_email':
+        form_error.value = t('t_error_corrupt_email');
+        break;
+      case 'error_invalid_turnstile':
+        form_error.value = t('t_error_invalid_turnstile');
+        break;
       default:
         handleFrontendError(error, error_message);
         break;
     }
   } finally {
     handling_request.value = false;
+    turnstile_element.value?.reset();
   }
 };
 </script>
 
 <template>
-  <!-- app/pages/contact.vue -->
   <UContainer class="ml-auto mr-auto max-w-xl w-full">
     <h1 class="text-center">
       {{ $t('t_contact_page_title') }}
@@ -121,6 +130,11 @@ const sendContactMessage = async () => {
           :rows="6"
         />
       </UFormField>
+
+      <TurnstileElement
+        ref="turnstile_element"
+        v-model="turnstile_token"
+      />
 
       <UAlert
         v-if="form_error"

@@ -1,5 +1,3 @@
-'use strict';
-
 const formatBooleanLabel = (value) => (value ? 'Oui' : 'Non');
 
 const formatTagLabel = (tag) => (

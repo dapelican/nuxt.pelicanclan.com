@@ -32,12 +32,7 @@ const getTagLabel = (tag) =>
     <template #header>
       <section class="flex items-center justify-between">
         <span class="inline-flex items-center gap-2 min-w-0">
-          <img
-            v-if="tool.square_logo_url"
-            alt=""
-            class="size-[32px] shrink-0 object-contain"
-            :src="tool.square_logo_url"
-          >
+          <ToolSquareLogoElement :src="tool.square_logo_url" />
           <ULink
             :to="`${tool.url}?utm_source=pelicanclan.com&utm_medium=directory`"
             target="_blank"

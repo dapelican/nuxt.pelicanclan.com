@@ -99,36 +99,9 @@ const clearSearch = () => {
 <template>
   <!-- app/pages/index.vue -->
   <UContainer>
-    <!-- <section class="ml-auto mr-auto max-w-2xl mb-8">
-      <SponsorElement />
-    </section> -->
-
     <h1 class="text-center">
       {{ $t('t_value_proposition') }}
     </h1>
-
-    <section class="ml-auto mr-auto max-w-2xl mt-8">
-      <UInput
-        v-model="search"
-        class="w-full"
-        :placeholder="$t('t_search_placeholder')"
-      >
-        <template
-          v-if="search"
-          #trailing
-        >
-          <UButton
-            class="cursor-pointer"
-            color="neutral"
-            icon="i-lucide-circle-x"
-            size="xs"
-            variant="link"
-            :padded="false"
-            @click="clearSearch"
-          />
-        </template>
-      </UInput>
-    </section>
 
     <!-- <section class="ml-auto mr-auto max-w-5xl mt-8 flex flex-wrap gap-4 justify-center">
       <SponsoredElement
@@ -157,6 +130,29 @@ const clearSearch = () => {
         >Prime Video</ULink>.
       </SponsoredElement>
     </section> -->
+
+    <section class="ml-auto mr-auto max-w-2xl mt-8">
+      <UInput
+        v-model="search"
+        class="w-full"
+        :placeholder="$t('t_search_placeholder')"
+      >
+        <template
+          v-if="search"
+          #trailing
+        >
+          <UButton
+            class="cursor-pointer"
+            color="neutral"
+            icon="i-lucide-circle-x"
+            size="xs"
+            variant="link"
+            :padded="false"
+            @click="clearSearch"
+          />
+        </template>
+      </UInput>
+    </section>
 
     <section class="ml-auto mr-auto max-w-5xl mt-8">
       <LoadingElement

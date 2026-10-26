@@ -1,0 +1,116 @@
+import {
+  HTTP_CODE_201_CREATED,
+  HTTP_CODE_400_BAD_REQUEST,
+} from '../../../helpers/http-status-codes.js';
+
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+
+import { createTestHandler } from '../create-test-handler.js';
+
+import handler from '../../../routes/a/send-token-to-reset-password.post.js';
+
+import {
+  sendEmail,
+} from '../../../services/smtp2go/send-email.js';
+
+vi.mock('../../../services/smtp2go/send-email.js', () => ({
+  sendEmail: vi.fn(() => Promise.resolve()),
+}));
+
+beforeEach(() => {
+  sendEmail.mockClear();
+});
+
+const request = createTestHandler('post', '/a/send-token-to-reset-password', handler);
+
+const post = (body) => request(new Request('http://localhost/a/send-token-to-reset-password', {
+  method: 'POST',
+  headers: { 'Content-Type': 'application/json' },
+  body: JSON.stringify({
+    turnstile_token: 'test-token',
+    ...body,
+  }),
+}));
+
+describe('POST /a/send-token-to-reset-password', () => {
+  it('returns 400 when the turnstile token is missing', async () => {
+    const response = await request(new Request('http://localhost/a/send-token-to-reset-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        email: 'reset-success@example.com',
+      }),
+    }));
+
+    expect(response.status).toBe(HTTP_CODE_400_BAD_REQUEST);
+
+    const data = await response.json();
+
+    expect(data.error_message).toBe('error_invalid_turnstile');
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 when email is missing', async () => {
+    const response = await post({});
+
+    expect(response.status).toBe(HTTP_CODE_400_BAD_REQUEST);
+
+    const data = await response.json();
+
+    expect(data.error_message).toBe('error_invalid_email');
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 when email is invalid', async () => {
+    const response = await post({ email: 'bad' });
+
+    expect(response.status).toBe(HTTP_CODE_400_BAD_REQUEST);
+
+    const data = await response.json();
+
+    expect(data.error_message).toBe('error_invalid_email');
+  });
+
+  it('returns 201 with empty body when no user is found (enumeration-safe)', async () => {
+    const response = await post({ email: 'nonexistent@example.com' });
+
+    expect(response.status).toBe(HTTP_CODE_201_CREATED);
+
+    const data = await response.json();
+
+    expect(data).toEqual({});
+  });
+
+  it('returns 201 when a reset token was already sent recently', async () => {
+    const response = await post({ email: 'reset-active-token@example.com' });
+
+    expect(response.status).toBe(HTTP_CODE_201_CREATED);
+
+    const data = await response.json();
+
+    expect(data).toEqual({});
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it('returns 400 when maximum retries are reached', async () => {
+    const response = await post({ email: 'reset-max-retries@example.com' });
+
+    expect(response.status).toBe(HTTP_CODE_400_BAD_REQUEST);
+
+    const data = await response.json();
+
+    expect(data.error_message).toBe('error_password_reset_limit_reached');
+    expect(sendEmail).not.toHaveBeenCalled();
+  });
+
+  it('returns 201 on successful token send', async () => {
+    const response = await post({ email: 'reset-success@example.com' });
+
+    expect(response.status).toBe(HTTP_CODE_201_CREATED);
+
+    const data = await response.json();
+
+    expect(data).toEqual({});
+    expect(sendEmail).toHaveBeenCalledTimes(1);
+  });
+});

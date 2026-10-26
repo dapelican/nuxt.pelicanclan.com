@@ -1,5 +1,3 @@
-'use strict';
-
 export const handleFrontendError = (error, message) => {
   $fetch('/monitoring/save-log', {
     method: 'POST',

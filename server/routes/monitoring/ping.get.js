@@ -1,5 +1,3 @@
-'use strict';
-
 import {
   defineEventHandler,
   setResponseStatus,
@@ -21,7 +19,7 @@ export default defineEventHandler(async (event) => {
   try {
     const {
       rows,
-    } = await executeSQLQuery('SELECT id FROM tools LIMIT 1');
+    } = await executeSQLQuery('SELECT id FROM users LIMIT 1');
 
     if (!rows.length) {
       throw new Error('error_database_health_check_failed');
