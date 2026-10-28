@@ -163,6 +163,7 @@ describe('POST /contact', () => {
     });
     expect(verifyEmail).toHaveBeenCalledWith('ada@example.com');
     expect(sendEmail).toHaveBeenCalledWith({
+      from: `contact@${WEBSITE_DOMAIN_NAME}`,
       subdomain: 'www',
       template_name: 'admin-new-contact-message',
       template_params: {

@@ -1,13 +1,4 @@
 <script setup>
-useHead({
-  link: [
-    {
-      rel: 'stylesheet',
-      href: 'https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap',
-    },
-  ],
-});
-
 const { locale } = useI18n();
 
 const route = useRoute();
@@ -42,7 +33,7 @@ const public_items = computed(() => {
   <!-- HeaderElement.vue -->
   <UHeader toggle-side="left">
     <template #title>
-      <span class="header-element-title-font">{{ WEBSITE_NAME }}</span>
+      <span class="font-display text-[1.7rem] font-normal">{{ WEBSITE_NAME }}</span>
     </template>
 
     <UNavigationMenu
@@ -67,10 +58,3 @@ const public_items = computed(() => {
     </template>
   </UHeader>
 </template>
-
-<style scoped>
-.header-element-title-font {
-  font-family: 'Permanent Marker', cursive;
-  font-size: 1.7rem;
-}
-</style>

@@ -9,11 +9,6 @@ import {
 } from '../../helpers/http-status-codes.js';
 
 import {
-  USER_STATUS_UNVERIFIED,
-  WEBSITE_DOMAIN_NAME,
-} from '#shared/utils/constants.js';
-
-import {
   defineEventHandler,
   readBody,
   setResponseStatus,
@@ -27,6 +22,10 @@ import {
 import {
   DateTime,
 } from 'luxon';
+
+import {
+  USER_STATUS_UNVERIFIED,
+} from '#shared/utils/constants.js';
 
 import {
   executeSQLQuery,
@@ -74,7 +73,6 @@ const sendTokenToValidateEmail = async (user, subdomain) => {
 
   try {
     await sendEmail({
-      bcc: `support@${WEBSITE_DOMAIN_NAME}`,
       subdomain,
       template_name: 'validate-email',
       template_params: { EMAIL_VALIDATION_TOKEN_DURATION_IN_HOURS, uuid },

@@ -171,6 +171,23 @@ export default defineNuxtConfig({
     },
     // scheduledTasks: {},
   },
+  fonts: {
+    families: [
+      {
+        name: 'Lato',
+        provider: 'google',
+        weights: [400, 700],
+        styles: ['normal', 'italic'],
+        global: true,
+      },
+      {
+        name: 'Permanent Marker',
+        provider: 'google',
+        weights: [400],
+        global: true,
+      },
+    ],
+  },
   ...(!is_production
     ? {
         eslint: {
@@ -249,7 +266,7 @@ export default defineNuxtConfig({
           ...(sentry_ingest_origin ? [sentry_ingest_origin] : []),
         ],
         'style-src': ['\'self\'', '\'unsafe-inline\''],
-        'img-src': ['\'self\'', 'data:'],
+        'img-src': ['\'self\'', 'data:', 'https://a.pelicanclan.com'],
         'font-src': ['\'self\'', 'data:'],
         'object-src': ['\'none\''],
         'base-uri': ['\'self\''],

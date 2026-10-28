@@ -7,6 +7,7 @@ CREATE TABLE tools (
   square_logo_url TEXT,
   active_en BOOLEAN DEFAULT TRUE,
   active_fr BOOLEAN DEFAULT TRUE,
+  start_date TEXT,
   comment TEXT
 );
 

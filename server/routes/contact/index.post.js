@@ -97,6 +97,7 @@ export default defineEventHandler(async (event) => {
     }
 
     await sendEmail({
+      from: `contact@${WEBSITE_DOMAIN_NAME}`,
       subdomain,
       template_name: 'admin-new-contact-message',
       template_params: {

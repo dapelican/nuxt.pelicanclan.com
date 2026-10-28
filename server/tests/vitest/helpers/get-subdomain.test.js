@@ -23,7 +23,9 @@ const handler = defineEventHandler((event) => ({
 const request = createTestHandler('get', '/subdomain', handler);
 
 const readSubdomain = async (host) => {
-  const response = await request(new Request(`http://${host}/subdomain`));
+  const response = await request(new Request(`http://${host}/subdomain`, {
+    headers: { host },
+  }));
 
   const data = await response.json();
 
