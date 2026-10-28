@@ -235,6 +235,7 @@ export default defineNuxtConfig({
   },
   // Headers only. Other nuxt-security middleware stays off until the app uses it.
   // 'unsafe-inline' in script-src is the CSP Level 2 fallback; a nonce makes browsers ignore it.
+  // 'wasm-unsafe-eval' lets Nuxt Content compile SQLite in the browser on client-side navigation.
   security: {
     nonce: true,
     hidePoweredBy: true,
@@ -257,6 +258,7 @@ export default defineNuxtConfig({
           '\'nonce-{{nonce}}\'',
           '\'strict-dynamic\'',
           '\'unsafe-inline\'',
+          '\'wasm-unsafe-eval\'',
         ],
         'script-src-attr': ['\'none\''],
         'frame-src': ['https://challenges.cloudflare.com'],
