@@ -21,7 +21,7 @@ const tag_body_schema = z.object({
   label_fr: z.string().trim().max(300),
   slug_en: z.string().trim().max(300),
   slug_fr: z.string().trim().max(300),
-  type: z.enum(['goal', 'target']),
+  type: z.enum(['main_use', 'characteristics']),
 }).superRefine((value, context) => {
   if (!value.label_en && !value.label_fr) {
     context.addIssue({

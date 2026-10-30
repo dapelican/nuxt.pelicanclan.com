@@ -5,12 +5,12 @@ const formatTagLabel = (tag) => (
 );
 
 const formatTagType = (type) => {
-  if (type === 'goal') {
-    return 'Objectif';
+  if (type === 'main_use') {
+    return 'Usage principal';
   }
 
-  if (type === 'target') {
-    return 'Cible';
+  if (type === 'characteristics') {
+    return 'Caractéristiques';
   }
 
   return '—';

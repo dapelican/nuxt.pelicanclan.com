@@ -1,37 +1,29 @@
 <script setup>
-// const { locale } = useI18n();
+const { locale } = useI18n();
 
 const route = useRoute();
 
 const public_items = computed(() => {
-  // const public_item_list = [
-  //   {
-  //     active: route.path === '/',
-  //     label: $t('t_tools'),
-  //     to: '/',
-  //   },
-  //   {
-  //     active: route.path === '/c' || route.path.startsWith('/c/'),
-  //     label: $t('t_categories'),
-  //     to: '/c',
-  //   },
-  // ];
-
-  // if (locale.value === 'fr') {
-  //   public_item_list.push({
-  //     active: route.path === '/blog' || route.path.startsWith('/blog/'),
-  //     label: $t('t_blog'),
-  //     to: '/blog',
-  //   });
-  // }
-
   const public_item_list = [
     {
+      active: route.path === '/',
+      label: $t('t_search'),
+      to: '/',
+    },
+    // {
+    //   active: route.path === '/t' || route.path.startsWith('/t/'),
+    //   label: $t('t_categories'),
+    //   to: '/t',
+    // },
+  ];
+
+  if (locale.value === 'fr') {
+    public_item_list.push({
       active: route.path === '/blog' || route.path.startsWith('/blog/'),
       label: $t('t_blog'),
       to: '/blog',
-    },
-  ];
+    });
+  }
 
   return public_item_list;
 });

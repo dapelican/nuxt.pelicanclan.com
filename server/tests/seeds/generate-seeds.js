@@ -110,20 +110,29 @@ const recordsFromCsv = (text) => {
 
 const emptyToNull = (value) => (value === '' ? null : value);
 
-const indexTag = (tags_by_slug, tag) => {
-  const indexSlug = (slug) => {
-    if (!slug) {
+const tagIndexKey = (kind, value) => (value ? `${kind}:${value}` : null);
+
+const findTag = (tags_by_key, kind, value) => {
+  const key = tagIndexKey(kind, value);
+  return key ? tags_by_key.get(key) : undefined;
+};
+
+const indexTag = (tags_by_key, tag) => {
+  const indexKey = (key) => {
+    if (!key) {
       return;
     }
-    const indexed = tags_by_slug.get(slug);
+    const indexed = tags_by_key.get(key);
     if (indexed && indexed !== tag) {
-      throw new Error(`Conflicting tag values for "${slug}"`);
+      throw new Error(`Conflicting tag values for "${key}"`);
     }
-    tags_by_slug.set(slug, tag);
+    tags_by_key.set(key, tag);
   };
 
-  indexSlug(tag.slug_en);
-  indexSlug(tag.slug_fr);
+  indexKey(tagIndexKey('slug_en', tag.slug_en));
+  indexKey(tagIndexKey('slug_fr', tag.slug_fr));
+  indexKey(tagIndexKey('label_en', tag.label_en));
+  indexKey(tagIndexKey('label_fr', tag.label_fr));
 };
 
 const fillTagField = (tag, field, incoming, identity) => {
@@ -143,7 +152,7 @@ const collectSeedData = (records) => {
   const tools = [];
   const tools_by_name = new Map();
   const tags = [];
-  const tags_by_slug = new Map();
+  const tags_by_key = new Map();
   const links = [];
 
   for (const record of records) {
@@ -177,20 +186,25 @@ const collectSeedData = (records) => {
     const slug_en = emptyToNull(record['tags|slug_en']);
     const label_fr = emptyToNull(record['tags|label_fr']);
     const slug_fr = emptyToNull(record['tags|slug_fr']);
-    const type = emptyToNull(record['tags|type']) ?? 'goal';
+    const type = emptyToNull(record['tags|type']) ?? 'main_use';
 
-    if (!slug_en && !slug_fr) {
+    if (!slug_en && !slug_fr && !label_en && !label_fr) {
       continue;
     }
 
-    const identity = slug_en || slug_fr;
-    const tag_by_en = slug_en ? tags_by_slug.get(slug_en) : undefined;
-    const tag_by_fr = slug_fr ? tags_by_slug.get(slug_fr) : undefined;
-    if (tag_by_en && tag_by_fr && tag_by_en !== tag_by_fr) {
+    const identity = slug_en || slug_fr || label_en || label_fr;
+    const matches = [
+      findTag(tags_by_key, 'slug_en', slug_en),
+      findTag(tags_by_key, 'slug_fr', slug_fr),
+      findTag(tags_by_key, 'label_en', label_en),
+      findTag(tags_by_key, 'label_fr', label_fr),
+    ].filter((tag) => tag);
+    const unique_matches = [...new Set(matches)];
+    if (unique_matches.length > 1) {
       throw new Error(`Conflicting tag values for "${identity}"`);
     }
 
-    let tag = tag_by_en || tag_by_fr;
+    let tag = unique_matches[0];
     if (!tag) {
       tag = {
         label_en,
@@ -207,12 +221,11 @@ const collectSeedData = (records) => {
       fillTagField(tag, 'slug_fr', slug_fr, identity);
       fillTagField(tag, 'type', type, identity);
     }
-    indexTag(tags_by_slug, tag);
+    indexTag(tags_by_key, tag);
 
     links.push({
       tool_name,
-      tag_slug_en: tag.slug_en,
-      tag_slug_fr: tag.slug_fr,
+      tag,
       tool_specific_url: emptyToNull(record['tool_tags|tool_specific_url']),
       tool_specific_name: emptyToNull(record['tool_tags|tool_specific_name']),
     });
@@ -267,8 +280,11 @@ ${formatValueRows(tool_rows)}
   ]);
   const link_rows = links.map((link) => [
     toSqlLiteral(link.tool_name),
-    toSqlLiteral(link.tag_slug_en),
-    toSqlLiteral(link.tag_slug_fr),
+    toSqlLiteral(link.tag.slug_en),
+    toSqlLiteral(link.tag.slug_fr),
+    toSqlLiteral(link.tag.label_en),
+    toSqlLiteral(link.tag.label_fr),
+    toSqlLiteral(link.tag.type),
     toSqlLiteral(link.tool_specific_url),
     toSqlLiteral(link.tool_specific_name),
   ]);
@@ -288,17 +304,28 @@ ${formatValueRows(tag_rows)}
 
   sql += `
 -- =============================================
--- Tool–tag links, resolved by tool name and tag slug_en or slug_fr
+-- Tool–tag links, resolved by slug when present, otherwise by label and type
 -- =============================================
 INSERT INTO tool_tags (tool_id, tag_id, tool_specific_url, tool_specific_name)
 SELECT tools.id, tags.id, v.tool_specific_url, v.tool_specific_name
 FROM (VALUES
 ${formatValueRows(link_rows, '')}
-) AS v(tool_name, tag_slug_en, tag_slug_fr, tool_specific_url, tool_specific_name)
+) AS v(tool_name, tag_slug_en, tag_slug_fr, tag_label_en, tag_label_fr, tag_type, tool_specific_url, tool_specific_name)
 JOIN tools ON tools.name = v.tool_name
 JOIN tags ON (
   (v.tag_slug_en IS NOT NULL AND tags.slug_en = v.tag_slug_en)
-    OR (v.tag_slug_en IS NULL AND tags.slug_fr = v.tag_slug_fr)
+    OR (
+      v.tag_slug_en IS NULL
+      AND v.tag_slug_fr IS NOT NULL
+      AND tags.slug_fr = v.tag_slug_fr
+    )
+    OR (
+      v.tag_slug_en IS NULL
+      AND v.tag_slug_fr IS NULL
+      AND tags.label_en IS NOT DISTINCT FROM v.tag_label_en
+      AND tags.label_fr IS NOT DISTINCT FROM v.tag_label_fr
+      AND tags.type = v.tag_type
+    )
 );
 `;
 

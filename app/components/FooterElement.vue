@@ -1,18 +1,18 @@
 <script setup>
-// const { locale } = useI18n();
+const { locale } = useI18n();
 
-// const items = computed(() => {
-//   if (locale.value !== 'en') {
-//     return [];
-//   }
+const items = computed(() => {
+  if (locale.value !== 'en') {
+    return [];
+  }
 
-//   return [
-//     {
-//       label: $t('t_blog'),
-//       to: '/blog',
-//     },
-//   ];
-// });
+  return [
+    {
+      label: $t('t_blog'),
+      to: '/blog',
+    },
+  ];
+});
 </script>
 
 <template>

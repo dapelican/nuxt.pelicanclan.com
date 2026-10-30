@@ -9,7 +9,7 @@ const {
   data: category_data,
   error: category_error,
   pending: handling_request,
-} = await useFetch(`/categories/${slug}`);
+} = await useFetch(`/tags/${slug}`);
 
 if (category_error.value) {
   const error_message = category_error.value.data?.error_message;
@@ -46,7 +46,7 @@ useSeoMeta({
 </script>
 
 <template>
-  <!-- app/pages/c/[slug].vue -->
+  <!-- app/pages/t/[slug].vue -->
   <UContainer>
     <h1 class="text-center">
       {{ category_title }}
@@ -62,6 +62,13 @@ useSeoMeta({
         v-if="category_data?.tag?.[html_field]"
         class="category-html max-w-xl"
         v-html="category_data?.tag?.[html_field]"
+      />
+
+      <UAlert
+        class="mt-6"
+        color="secondary"
+        :description="$t('t_tools_ordered_alphabetically')"
+        icon="i-lucide-info"
       />
 
       <div

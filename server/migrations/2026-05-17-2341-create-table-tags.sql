@@ -8,7 +8,7 @@ CREATE TABLE tags (
   label_fr TEXT,
   slug_fr TEXT,
   html_fr TEXT,
-  type TEXT -- goal, target
+  type TEXT -- main_use, characteristics
 );
 
 CREATE TRIGGER update_tags_timestamp
