@@ -8,12 +8,12 @@ const props = defineProps({
 
 const { locale } = useI18n();
 
-const goal_tags = computed(() =>
-  (props.tool.tags ?? []).filter((tag) => tag.type === 'goal')
+const main_use_tags = computed(() =>
+  (props.tool.tags ?? []).filter((tag) => tag.type === 'main_use')
 );
 
 const other_tags = computed(() =>
-  (props.tool.tags ?? []).filter((tag) => tag.type !== 'goal')
+  (props.tool.tags ?? []).filter((tag) => tag.type !== 'main_use')
 );
 
 const getTagSlug = (tag) =>
@@ -44,19 +44,19 @@ const getTagLabel = (tag) =>
       </section>
     </template>
 
-    <section v-if="goal_tags.length">
+    <section v-if="main_use_tags.length">
       <p>
-        {{ $t('t_x_goals', { count: goal_tags.length }) }}
+        {{ $t('t_main_use') }}
       </p>
 
       <ul class="list-disc list-inside space-y-2">
         <li
-          v-for="tag in goal_tags"
+          v-for="tag in main_use_tags"
           :key="tag.id"
           class="mt-1"
         >
           <ULink
-            :to="`/c/${getTagSlug(tag)}`"
+            :to="`/t/${getTagSlug(tag)}`"
             class="text-primary"
           >
             {{ getTagLabel(tag) }}
@@ -83,7 +83,7 @@ const getTagLabel = (tag) =>
       class="mt-4"
     >
       <p>
-        {{ $t('t_tags') }}
+        {{ $t('t_characteristics') }}
       </p>
 
       <ul class="list-disc list-inside space-y-2">
@@ -93,7 +93,7 @@ const getTagLabel = (tag) =>
           class="mt-1"
         >
           <ULink
-            :to="`/c/${getTagSlug(tag)}`"
+            :to="`/t/${getTagSlug(tag)}`"
             class="text-primary"
           >
             {{ getTagLabel(tag) }}

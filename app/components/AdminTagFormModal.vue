@@ -17,12 +17,12 @@ const is_open = defineModel('open', {
 
 const type_option_list = [
   {
-    label: 'Objectif',
-    value: 'goal',
+    label: $t('t_main_use'),
+    value: 'main_use',
   },
   {
-    label: 'Cible',
-    value: 'target',
+    label: $t('t_characteristics'),
+    value: 'characteristics',
   },
 ];
 
@@ -36,7 +36,7 @@ const form_state = reactive({
   label_fr: '',
   slug_en: '',
   slug_fr: '',
-  type: 'goal',
+  type: 'main_use',
 });
 
 const tag_form_schema = z.object({
@@ -46,7 +46,7 @@ const tag_form_schema = z.object({
   label_fr: z.string(),
   slug_en: z.string(),
   slug_fr: z.string(),
-  type: z.enum(['goal', 'target']),
+  type: z.enum(['main_use', 'characteristics']),
 }).superRefine((value, context) => {
   if (!value.label_en.trim() && !value.label_fr.trim()) {
     context.addIssue({
@@ -71,7 +71,7 @@ const fillForm = () => {
     form_state.label_fr = '';
     form_state.slug_en = '';
     form_state.slug_fr = '';
-    form_state.type = 'goal';
+    form_state.type = 'main_use';
     return;
   }
 
@@ -81,7 +81,7 @@ const fillForm = () => {
   form_state.label_fr = props.tag.label_fr ?? '';
   form_state.slug_en = props.tag.slug_en ?? '';
   form_state.slug_fr = props.tag.slug_fr ?? '';
-  form_state.type = props.tag.type === 'target' ? 'target' : 'goal';
+  form_state.type = props.tag.type === 'characteristics' ? 'characteristics' : 'main_use';
 };
 
 watch(is_open, (open) => {

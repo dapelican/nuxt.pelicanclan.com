@@ -11,11 +11,11 @@ const { locale } = useI18n();
 const sort_column = ref(null);
 const sort_direction = ref('asc');
 
-const getgoalTags = (tool) =>
-  (tool.tags ?? []).filter((tag) => tag.type === 'goal');
+const getMainUseTags = (tool) =>
+  (tool.tags ?? []).filter((tag) => tag.type === 'main_use');
 
 const getOtherTags = (tool) =>
-  (tool.tags ?? []).filter((tag) => tag.type !== 'goal');
+  (tool.tags ?? []).filter((tag) => tag.type !== 'main_use');
 
 const show_users_column = computed(() =>
   props.tools.some((tool) => getOtherTags(tool).length > 0)
@@ -99,14 +99,14 @@ const getSortIcon = (column) => {
             scope="col"
             class="px-3 py-2 font-medium"
           >
-            {{ $t('t_goal') }}
+            {{ $t('t_main_use') }}
           </th>
           <th
             v-if="show_users_column"
             scope="col"
             class="px-3 py-2 font-medium"
           >
-            {{ $t('t_tags') }}
+            {{ $t('t_characteristics') }}
           </th>
         </tr>
       </thead>
@@ -135,15 +135,15 @@ const getSortIcon = (column) => {
           </td>
           <td class="px-3 py-3">
             <ul
-              v-if="getgoalTags(tool).length"
+              v-if="getMainUseTags(tool).length"
               class="list-disc list-inside space-y-2"
             >
               <li
-                v-for="tag in getgoalTags(tool)"
+                v-for="tag in getMainUseTags(tool)"
                 :key="tag.id"
               >
                 <ULink
-                  :to="`/c/${getTagSlug(tag)}`"
+                  :to="`/t/${getTagSlug(tag)}`"
                   class="text-primary"
                 >
                   {{ getTagLabel(tag) }}
@@ -177,7 +177,7 @@ const getSortIcon = (column) => {
                 :key="tag.id"
               >
                 <ULink
-                  :to="`/c/${getTagSlug(tag)}`"
+                  :to="`/t/${getTagSlug(tag)}`"
                   class="text-primary"
                 >
                   {{ getTagLabel(tag) }}

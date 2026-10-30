@@ -2,7 +2,7 @@
 const { t, locale } = useI18n();
 
 useSeoMeta({
-  title: `${t('t_categories_page_title')} | ${WEBSITE_NAME}`,
+  title: `${t('t_categories')} | ${WEBSITE_NAME}`,
   description: t('t_categories_page_meta_description'),
 });
 
@@ -10,7 +10,7 @@ const {
   data: categories_data,
   error: categories_error,
   pending: handling_request,
-} = await useFetch('/categories/get-all');
+} = await useFetch('/tags/get-all');
 
 if (categories_error.value) {
   const error_message = categories_error.value.data?.error_message;
@@ -20,9 +20,9 @@ if (categories_error.value) {
   }
 }
 
-const goal_tag_list = computed(() => categories_data.value?.tags_by_type?.goal ?? []);
+const main_use_tag_list = computed(() => categories_data.value?.tags_by_type?.main_use ?? []);
 
-const target_tag_list = computed(() => categories_data.value?.tags_by_type?.target ?? []);
+const characteristics_tag_list = computed(() => categories_data.value?.tags_by_type?.characteristics ?? []);
 
 const getTagSlug = (tag) =>
   locale.value === 'en' ? tag.slug_en : tag.slug_fr;
@@ -32,10 +32,10 @@ const getTagLabel = (tag) =>
 </script>
 
 <template>
-  <!-- app/pages/c/index.vue -->
+  <!-- app/pages/t/index.vue -->
   <UContainer>
     <h1 class="text-center">
-      {{ $t('t_categories_page_title') }}
+      {{ $t('t_categories') }}
     </h1>
 
     <section class="ml-auto mr-auto max-w-2xl">
@@ -46,17 +46,17 @@ const getTagLabel = (tag) =>
 
       <div v-if="!handling_request">
         <h2>
-          {{ $t('t_goals') }}
+          {{ $t('t_main_use') }}
         </h2>
 
         <ul>
           <li
-            v-for="tag in goal_tag_list"
+            v-for="tag in main_use_tag_list"
             :key="tag.id"
           >
             <ULink
               v-if="tag.tool_count > 0"
-              :to="`/c/${getTagSlug(tag)}`"
+              :to="`/t/${getTagSlug(tag)}`"
               class="text-primary"
             >
               {{ getTagLabel(tag) }}
@@ -73,17 +73,17 @@ const getTagLabel = (tag) =>
         </ul>
 
         <h2 class="mt-8">
-          {{ $t('t_tags') }}
+          {{ $t('t_characteristics') }}
         </h2>
 
         <ul>
           <li
-            v-for="tag in target_tag_list"
+            v-for="tag in characteristics_tag_list"
             :key="tag.id"
           >
             <ULink
               v-if="tag.tool_count > 0"
-              :to="`/c/${getTagSlug(tag)}`"
+              :to="`/t/${getTagSlug(tag)}`"
               class="text-primary"
             >
               {{ getTagLabel(tag) }}
