@@ -2,7 +2,7 @@
 meta_title: "Principes UX pour le web"
 meta_description: "Règles concrètes relatives à la typographie, la mise en page et aux interactions pour des pages web lisibles."
 locale: fr
-visibility: public
+visibility: private
 category: UX
 slug: principes-ux
 created_at: 2026-10-13
