@@ -60,4 +60,3 @@ updated_at: 2024-11-25
 
   - [Facebook](https://www.facebook.com/allthingssecured?utm_source=pelicanclan.com&utm_medium=article){target="_blank" rel="noopener noreferrer" class="text-primary"}.
   - [Twitter](https://twitter.com/all_secured?utm_source=pelicanclan.com&utm_medium=article){target="_blank" rel="noopener noreferrer" class="text-primary"}.
-  - [Email](mailto:contact@allthingssecured.com).
